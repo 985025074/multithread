@@ -1,0 +1,3 @@
+#build文件夹忽略
+build/
+.vscode/
