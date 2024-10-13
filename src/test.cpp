@@ -317,9 +317,14 @@
 // }
 #include "myPool.h"
 #include "std.h"
-
+#include "safe_look.h"
+#include "books.h"
+threadsafe_map<int,int> m;
+normal::threadsafe_map<int,int> m2;
+threadsafe_lookup_table<int,int> m3;
 int main() {
-
-
+    
+    fortest_look::benchmark(100,m3);
+    fortest_look::benchmark(100,m);
     return 0;
 }
