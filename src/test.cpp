@@ -1,6 +1,5 @@
 // #include "std.h"
 // #include "myPool.h"
-// #define LINE std::cout <<"--------------------------"<<std::endl;
 // template <typename T,typename = std::void_t<>>
 // struct has_size{
 //     static constexpr bool value = false;
@@ -317,14 +316,10 @@
 // }
 #include "myPool.h"
 #include "std.h"
-#include "safe_look.h"
-#include "books.h"
-threadsafe_map<int,int> m;
-normal::threadsafe_map<int,int> m2;
-threadsafe_lookup_table<int,int> m3;
+#include "lock_free_stack.h"
 int main() {
-    
-    fortest_look::benchmark(100,m3);
-    fortest_look::benchmark(100,m);
+
+    fortest_stack::test();
+
     return 0;
 }
