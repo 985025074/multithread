@@ -314,12 +314,27 @@
 //     result/=times;
 //     std::cout << "benchmark result:" << result << std::endl;
 // }
-#include "myPool.h"
-#include "std.h"
-#include "lock_free_stack.h"
-int main() {
-
-    fortest_stack::test();
-
+// #include "std.h"
+// #include "helper.h"
+// template <typename T>
+// std::list<T> quicksort(std::list<T> lis) {
+//     if(lis.empty()) return lis;
+//     std::list<T>final_list;
+//     final_list.splice(final_list.end(),lis,lis.begin()); // move the first element to!
+//     auto loc = std::partition(lis.begin(),lis.end(),[&final_list](const T& val){
+//         return val < *final_list.begin();
+//     });
+//     std::list<T> left_part;
+//     list_part.splice(left_part.end(),lis,lis.begin(),loc);
+//     print_container(left_part);
+//     print_container(lis);
+// }
+// void speaker(int i){
+//     std::cout << "speaker " << i << std::endl;
+// }
+int main(){
+    // std::list<int> lis = {5,3,8,1,9,2,7,4,6};
+    // quicksort(lis);
+    
     return 0;
 }

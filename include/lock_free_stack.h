@@ -109,12 +109,8 @@ void delete_safe_nodes(){
             std::shared_ptr<T> data;
             if(oldhead){
                 data=std::move(oldhead->data);
-                if(safe_one(oldhead)){
-                    delete oldhead;
-                }
-                else{
-                    add_to_wait_to_die(oldhead);
-                }
+             add_to_wait_to_die(oldhead);
+
             }
             delete_safe_nodes();
             
