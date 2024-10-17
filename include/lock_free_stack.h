@@ -1,5 +1,6 @@
 #pragma once
 #include "std.h"
+#include "lock_free_stack_shared.h"
 namespace hazard_pointer{
 //hazard方案保证及时释放
     const int max_threads_together = 10;
@@ -207,7 +208,7 @@ class lock_free_stack {
 namespace fortest_stack{
     void test(){
         int m[150000] = {0};
-        hazard_pointer::lock_free_stack<int> s;
+        lock_free_stack_shared<int> s;
         std::thread t1([&](){
             for(int i=0;i<150000;i++){
                 s.push(i);

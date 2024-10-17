@@ -314,27 +314,18 @@
 //     result/=times;
 //     std::cout << "benchmark result:" << result << std::endl;
 // }
-// #include "std.h"
-// #include "helper.h"
-// template <typename T>
-// std::list<T> quicksort(std::list<T> lis) {
-//     if(lis.empty()) return lis;
-//     std::list<T>final_list;
-//     final_list.splice(final_list.end(),lis,lis.begin()); // move the first element to!
-//     auto loc = std::partition(lis.begin(),lis.end(),[&final_list](const T& val){
-//         return val < *final_list.begin();
-//     });
-//     std::list<T> left_part;
-//     list_part.splice(left_part.end(),lis,lis.begin(),loc);
-//     print_container(left_part);
-//     print_container(lis);
-// }
-// void speaker(int i){
-//     std::cout << "speaker " << i << std::endl;
-// }
+#include "std.h"
+#include "helper.h"
+#include "my_parallel_for_each.h"
+#include "my_parallel_find.h"
+#include "my_parallel_partial_sum.h"
 int main(){
-    // std::list<int> lis = {5,3,8,1,9,2,7,4,6};
-    // quicksort(lis);
-    
+    std::vector<int> v(50000000,12);
+    syc::Timer t;
+    auto  c= parallel_partial_sum(v.begin(),v.end());
+    std:: cout << "parallel_partial_sum time:" << t.stop() << std::endl;
+    std::partial_sum(v.begin(),v.end(),v.begin());
+    std::cout << "std::partial_sum time:" << t.stop() << std::endl;
+
     return 0;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "std.h"
+namespace syc{
 template <typename Ret,typename ...Args>
 class signal{
 public:
@@ -21,4 +22,5 @@ public:
 private:
     std::mutex mtx;
     std::vector<std::function<Ret(Args...)>> slots;
+};
 };
