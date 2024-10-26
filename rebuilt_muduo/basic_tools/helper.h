@@ -1,9 +1,12 @@
 #pragma once
-#include "std.h"
-#include "timer.h"
 #include <fstream>
 #include <fmt/format.h>
 #include <fmt/core.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <thread>
 namespace learn{
     class unmovable{
     public:

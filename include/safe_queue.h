@@ -132,6 +132,13 @@ public:
         q.pop();
         return result;
     }
+    std::shared_ptr<T> try_pop(){
+        std::lock_guard<std::mutex> lock(mtx);
+        if(q.empty()) return nullptr;
+        auto result = std::make_shared<T>(std::move(q.front()));
+        q.pop();
+        return result;
+    }
 };
 
 namespace books{

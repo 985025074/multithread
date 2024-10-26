@@ -314,18 +314,110 @@
 //     result/=times;
 //     std::cout << "benchmark result:" << result << std::endl;
 // }
+// #include "std.h"
+// #include "helper.h"
+// #include "my_parallel_for_each.h"
+// #include "my_parallel_find.h"
+// #include "my_parallel_partial_sum.h"
+// #include "threadpool.h"
+// using namespace std::literals;
+// template<typename T>
+// std::list<T> quicksort_traditional(std::list<T>&&lis) {
+//     if (lis.size() <= 1) {
+//         return lis;
+//     }
+//     std::list<T> left_part;
+//     T mid_val = lis.front();
+//     lis.pop_front();
+//     auto midright = std::partition(lis.begin(), lis.end(), [mid_val](const T& x) { return x < mid_val; });
+//     left_part.splice(left_part.end(), lis, lis.begin(), midright);
+//     std::future<std::list<T>> f = std::async(std::launch::async, quicksort_traditional<T>, std::move(left_part));
+
+//     auto right_part = quicksort_traditional(std::move(lis));
+//     left_part = f.get();
+//     left_part.insert(left_part.end(), mid_val);
+//     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
+
+//     return left_part;
+// }
+// //use our v2 version to make it cooler
+// thread_pool_v4 t1(std::thread::hardware_concurrency());
+// template<typename T>
+// std::list<T> quicksort_threadpool(std::list<T>&&lis) {
+//     if (lis.size() <= 1) {
+//         return lis;
+//     }
+//     std::list<T> left_part;
+//     T mid_val = lis.front();
+//     lis.pop_front();
+//     auto midright = std::partition(lis.begin(), lis.end(), [mid_val](const T& x) { return x < mid_val; });
+//     left_part.splice(left_part.end(), lis, lis.begin(), midright);
+//     auto left_future = t1.add_task([left_part=std::move(left_part)]()mutable{return quicksort_threadpool<T>(std::move(left_part));});
+//     auto right_future= t1.add_task([lis=std::move(lis)]()mutable{return quicksort_threadpool<T>(std::move(lis));});
+//     while(left_future.wait_for(0ms) == std::future_status::timeout || right_future.wait_for(0ms) == std::future_status::timeout){
+//         t1.run_task();
+//     }
+//     left_part = left_future.get();
+//     auto right_part = right_future.get();   
+//     left_part.insert(left_part.end(), mid_val);
+//     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
+
+//     return left_part;
+// }
+
 #include "std.h"
 #include "helper.h"
-#include "my_parallel_for_each.h"
-#include "my_parallel_find.h"
-#include "my_parallel_partial_sum.h"
-int main(){
-    std::vector<int> v(50000000,12);
-    syc::Timer t;
-    auto  c= parallel_partial_sum(v.begin(),v.end());
-    std:: cout << "parallel_partial_sum time:" << t.stop() << std::endl;
-    std::partial_sum(v.begin(),v.end(),v.begin());
-    std::cout << "std::partial_sum time:" << t.stop() << std::endl;
 
+void say(int i){
+    std::cout << "say " << i << std::endl;
+}
+auto func1(){
+    notice n;
+    LINE;
+    return n;
+}//RVO succeed
+auto func2(notice n = notice()){
+    LINE;
+    return n;
+}//RVO failed but move succeed
+class X{
+    public:
+    auto f(){
+        return  n;
+    };
+    notice n;
+};//copy, class member is not RVO,not movable.you should use std::move explicitly.
+struct student{
+    int age;
+    int name;
+};
+void back_swap_erase(std::vector<student>& v, unsigned index){
+    std::swap(v[index],v.back());
+    v.pop_back();
+}
+void thread1(){
+    std::exit(5);
+}
+#include <format>
+#include "basic_tools/buffer.h"
+#include <iostream>
+#include "basic_tools/LogStream.h"
+#include <ctime>
+#include "basic_tools/Logger.h"
+#include <muduo/base/Logging.h>
+#include "helper.h"
+#include <any>
+
+int main(){
+
+    muduo::Logger::setLogLevel(muduo::Logger::TRACE);
+    syc::Timer t;
+        for(int i=0;i<100000;i++)
+        SYC_LOG_TRACE << " trace\n";
+    auto t1 = t.stop();
+    for(int i=0;i<100000;i++)
+        LOG_TRACE << " trace\n";
+    auto t2 = t.stop();
+    std::cout << t1 << " " << t2 << std::endl;
     return 0;
 }

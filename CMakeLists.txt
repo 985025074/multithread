@@ -2,9 +2,10 @@
 set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_C_COMPILER "gcc")
 
-
 CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 project(fortest)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # includes
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -13,6 +14,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src TEMP)
 list(APPEND SRC_CPP ${TEMP})
 
+list(APPEND SRC_CPP ${TEMP})
 #set target
 add_executable(hello ${SRC_CPP})
 add_executable(unit_test ${PROJECT_SOURCE_DIR}/unit_test/unit_test.cpp)
@@ -38,5 +40,14 @@ target_link_libraries(unit_test GTest::gtest_main GTest::gtest)
 find_package(benchmark)
 target_link_libraries(bm benchmark::benchmark)
 #设置为release模式
+
+# link libs and dirs
+add_subdirectory(rebuilt_muduo)
+target_link_libraries(hello muduo_lib)
+
+
+# real muduo
+
+target_link_libraries(hello /usr/local/lib/libmuduo_base.a)
 
 
