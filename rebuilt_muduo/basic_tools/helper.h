@@ -1,12 +1,11 @@
 #pragma once
 #include <fstream>
-#include <fmt/format.h>
-#include <fmt/core.h>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <thread>
+#include <utility>
 namespace learn{
     class unmovable{
     public:
@@ -109,19 +108,19 @@ class notice{
         puts(__PRETTY_FUNCTION__);
     }
 };
-inline std::vector<std::string> read_file(const char* filename){
-    std::ifstream ifs(filename);
-    if(!ifs.is_open()){
-        fmt::println("open file [{}] failed,error:{}",filename,strerror(errno));
-        return {};
-    }
-    std::vector<std::string> lines;
-    std::string line;
-    while(getline(ifs,line)){
-        lines.push_back(std::move(line));
-    }
-    return lines;
-}
+// inline std::vector<std::string> read_file(const char* filename){
+//     std::ifstream ifs(filename);
+//     if(!ifs.is_open()){
+//         fmt::println("open file [{}] failed,error:{}",filename,strerror(errno));
+//         return {};
+//     }
+//     std::vector<std::string> lines;
+//     std::string line;
+//     while(getline(ifs,line)){
+//         lines.push_back(std::move(line));
+//     }
+//     return lines;
+// }
 inline std::vector<std::string> split_by(std::string s,char decl){
     std::istringstream oss(s);
     std::string item;

@@ -407,17 +407,19 @@ void thread1(){
 #include <muduo/base/Logging.h>
 #include "helper.h"
 #include <any>
-
+#include <variant>
+void func_int(int i){
+    std::cout <<__PRETTY_FUNCTION__ << " " << i << std::endl;
+}
+void func_long(double i){
+    std::cout <<__PRETTY_FUNCTION__ << " " << i << std::endl;
+}
+#include "basic_tools/FileWrapper.h"
+#include "basic_tools/FormatTools.h"
+#include "basic_tools/LogFile.h"
 int main(){
-
-    muduo::Logger::setLogLevel(muduo::Logger::TRACE);
-    syc::Timer t;
-        for(int i=0;i<100000;i++)
-        SYC_LOG_TRACE << " trace\n";
-    auto t1 = t.stop();
-    for(int i=0;i<100000;i++)
-        LOG_TRACE << " trace\n";
-    auto t2 = t.stop();
-    std::cout << t1 << " " << t2 << std::endl;
+  
+    syc::LogFile log("test.log",1,false,1,1);\
+    std::cout << log.get_log_file_name();
     return 0;
 }

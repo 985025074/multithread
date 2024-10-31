@@ -2,8 +2,8 @@
 #include "std.h"
 #include "timer.h"
 #include <fstream>
-#include <fmt/format.h>
-#include <fmt/core.h>
+
+#include <random>
 namespace learn{
     class unmovable{
     public:
@@ -128,3 +128,58 @@ inline std::vector<std::string> split_by(std::string s,char decl){
     }
     return res;
 }
+template <typename ...T>
+class overload:public T...{
+    public:
+    using T::operator()...;
+    
+};
+class RandomGenerator{
+    public:
+    using IntGenerator = std::uniform_int_distribution<int>;
+    using FloatGenerator = std::uniform_real_distribution<float>;
+    RandomGenerator():gen(std::random_device{}()),dis(std::monostate()){
+        
+    }
+    void use_int(){
+        dis = IntGenerator();
+    }
+    void use_float(){
+        dis = FloatGenerator();
+    }
+    void set_range(int min,int max){
+        std::visit(overload{
+            [this,min,max](IntGenerator& dis){this->dis = IntGenerator(min,max);},
+            [this,min,max](FloatGenerator& dis){this->dis = FloatGenerator(min,max);},
+            [this](auto&){std::cout <<"No Generator!Set first.\n";},
+            },dis);
+    }
+    int uniform_int(){
+        try{
+            return std::get<IntGenerator>(dis)(gen);
+        }
+        catch(...){
+            std::cout <<"Not Int Generator\n";
+            return 0;
+        }
+    }
+    float uniform_float(){
+        try{
+            return std::get<FloatGenerator>(dis)(gen);
+        }
+        catch(...){
+            std::cout <<"Not Float Generator\n";
+            return 0;
+        }     
+    }
+    private:
+    std::mt19937 gen;
+    std::variant<std::monostate,IntGenerator,FloatGenerator> dis;
+};
+class EasyTimer{
+    void get_time(){
+        
+    }
+
+
+};
