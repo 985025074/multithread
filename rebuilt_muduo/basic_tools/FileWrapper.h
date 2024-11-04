@@ -14,7 +14,7 @@
 namespace syc{
     //appendfile 提供文件的加入 使用的是标准流
     
-    /// @brief appendfile class 不创建文件，默认在filename 的后面追加
+    /// @brief appendfile class 可能会创建文件，默认在filename 的后面追加
     /// 如果文件不存在，构造函数抛出异常
     class AppendFile{
         public:
@@ -26,7 +26,7 @@ namespace syc{
         //
         explicit AppendFile(std::string_view filename);
         ~AppendFile();
-        void append(std::string data);
+        void append(std::string_view data);
         void flush();
         off_t get_already_write(){
             return _already_write;

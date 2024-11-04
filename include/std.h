@@ -1,7 +1,8 @@
 #pragma once
-#include <iostream>
+
 #include <fmt/format.h>
 #include <fmt/base.h>
+#include <iostream>
 #include <ranges>
 #include <utility>
 #include <version>

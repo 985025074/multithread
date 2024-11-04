@@ -15,7 +15,7 @@
 // template <typename T,typename = std::enable_if_t<!has_size<T>::value>>
 // void run_(){
 //     fmt::println("default");
-// } 
+// }
 // struct test__{
 //     std::vector<int>a;
 //     int b;
@@ -70,7 +70,6 @@
 // //     std::queue
 // // }
 
-
 // int find_answer(){
 //     std::this_thread::sleep_for(std::chrono::seconds(1));
 //     return 42;
@@ -120,7 +119,7 @@
 // //     list<int> lis;
 // //     for(int i=0;i<100;i++){
 // //         lis.push_back(distrib(gen));
-// //     }    
+// //     }
 // //     auto sorted_lis = quicksort(list<int>(lis));
 // //     std::vector<int> cp_lis (lis.begin(),lis.end());
 // //     std::sort(cp_lis.begin(),cp_lis.end());
@@ -160,14 +159,13 @@
 // // template <typename T>
 // // T get_T(Type<T>);
 
-
 // // struct Base{
 // //     Base(){
 // //         Init();
 // //     }
 // //     void Init(){
 // //         f();
-// //     }   
+// //     }
 // //     virtual void f(){
 // //         fmt::print("Base::f()\n");
 // //     }
@@ -297,7 +295,7 @@
 // template <typename container>
 // void benchmark(int times,container& p){
 //     int64_t result =0;
-    
+
 //     auto now = syc::Timer();
 //     for(int i =0;i<times;i++){
 //     std::vector<std::thread>pool;
@@ -305,7 +303,7 @@
 //     pool.emplace_back(create<container>,10000,std::ref(p));
 //     pool.emplace_back(create<container>,10000,std::ref(p));
 //     pool.emplace_back(del<container>,40000,std::ref(p));
-    
+
 //     for(auto& t:pool){
 //         t.join();
 //     }
@@ -358,68 +356,25 @@
 //         t1.run_task();
 //     }
 //     left_part = left_future.get();
-//     auto right_part = right_future.get();   
+//     auto right_part = right_future.get();
 //     left_part.insert(left_part.end(), mid_val);
 //     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
 
 //     return left_part;
 // }
 
-#include "std.h"
-#include "helper.h"
 
-void say(int i){
-    std::cout << "say " << i << std::endl;
-}
-auto func1(){
-    notice n;
-    LINE;
-    return n;
-}//RVO succeed
-auto func2(notice n = notice()){
-    LINE;
-    return n;
-}//RVO failed but move succeed
-class X{
-    public:
-    auto f(){
-        return  n;
-    };
-    notice n;
-};//copy, class member is not RVO,not movable.you should use std::move explicitly.
-struct student{
-    int age;
-    int name;
-};
-void back_swap_erase(std::vector<student>& v, unsigned index){
-    std::swap(v[index],v.back());
-    v.pop_back();
-}
-void thread1(){
-    std::exit(5);
-}
-#include <format>
-#include "basic_tools/buffer.h"
-#include <iostream>
-#include "basic_tools/LogStream.h"
-#include <ctime>
-#include "basic_tools/Logger.h"
-#include <muduo/base/Logging.h>
-#include "helper.h"
-#include <any>
-#include <variant>
-void func_int(int i){
-    std::cout <<__PRETTY_FUNCTION__ << " " << i << std::endl;
-}
-void func_long(double i){
-    std::cout <<__PRETTY_FUNCTION__ << " " << i << std::endl;
-}
-#include "basic_tools/FileWrapper.h"
-#include "basic_tools/FormatTools.h"
 #include "basic_tools/LogFile.h"
-int main(){
-  
-    syc::LogFile log("test.log",1,false,1,1);\
-    std::cout << log.get_log_file_name();
-    return 0;
+
+int main()
+{
+    syc::LogFile log("syc",1024,1024,5L);
+    int count = 0;
+    for(int i = 0;i<1000;i++){
+        count ++;
+        log.append(std::format("hello world,{}",count));
+        
+    }
+
+
 }

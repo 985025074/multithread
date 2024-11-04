@@ -46,7 +46,7 @@ namespace syc
     /// @brief add data to the end of the file,use fwrite_unlocked. it is possible failed! 
     /// if failed,we just write part of the data.you can use get_already_written to check.
     /// @param data input data
-    void AppendFile::append(std::string data){
+    void AppendFile::append(std::string_view data){
         int remain = data.size();
         while(remain > 0){
             int n = fwrite_unlocked(data.data() + data.size() - remain, 1, remain, _fp);

@@ -2,6 +2,8 @@ set(base_SRCS
     LogStream.cpp
     FormatTools.cpp
     Logger.cpp
+    FileWrapper.cpp
+    LogFile.cpp
     )
 
 add_library(basic_tools ${base_SRCS})
