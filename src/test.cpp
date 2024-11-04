@@ -365,16 +365,60 @@
 
 
 #include "basic_tools/LogFile.h"
+#include "basic_tools/Logger.h"
+#include "basic_tools/AsyncLogging.h"
+#include <stdio.h>
+#include <sys/resource.h>
+#include <unistd.h>
 
-int main()
+
+syc::AsyncLogging* g_asyncLog = nullptr;
+void asyncOutput(syc::Logger::impl && impl)
 {
-    syc::LogFile log("syc",1024,1024,5L);
-    int count = 0;
-    for(int i = 0;i<1000;i++){
-        count ++;
-        log.append(std::format("hello world,{}",count));
-        
+  g_asyncLog->append(std::string_view(impl._stream.buffer().data(), impl._stream.length()));
+}
+
+void bench(bool longLog)
+{
+  syc::Logger::setGlobalCallback(asyncOutput);
+
+  int cnt = 0;
+  const int kBatch = 1000;
+  std::string empty = " ";
+  std::string longStr(3000, 'X');
+  longStr += " ";
+  syc::Timer start;
+  for (int t = 0; t < 30; ++t)
+  {
+    for (int i = 0; i < kBatch; ++i)
+    {
+      SYC_LOG_INFO << "Hello 0123456789" << " abcdefghijklmnopqrstuvwxyz "
+               << (longLog ? longStr : empty)
+               << cnt;
+      ++cnt;
     }
+  }
+  std::cout << "total time: " << start.stop() << "ms" << std::endl;
+}
 
+int main(int argc, char* argv[])
+{
 
+  {
+    // set max virtual memory to 2GB.
+    size_t kOneGB = 1000*1024*1024;
+    rlimit rl = { 2*kOneGB, 2*kOneGB };
+    setrlimit(RLIMIT_AS, &rl);
+  }
+  printf("pid = %d\n", getpid());
+
+  char name[256] = { '\0' };
+  strncpy(name, argv[0], sizeof name - 1);
+  syc::AsyncLogging log("temp");
+  log.start();
+  g_asyncLog = &log;
+
+  bool longLog = false;
+  bench(longLog);
+  log.stop();
 }

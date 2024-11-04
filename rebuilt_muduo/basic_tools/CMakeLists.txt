@@ -4,6 +4,7 @@ set(base_SRCS
     Logger.cpp
     FileWrapper.cpp
     LogFile.cpp
+    AsyncLogging.cpp
     )
 
 add_library(basic_tools ${base_SRCS})

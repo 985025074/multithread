@@ -2,13 +2,13 @@
 
 #include "LogStream.h"
 #include "convert.h"
-#include "FormatTools.cpp"
+#include "FormatTools.h"
 #include <unistd.h>
 namespace syc{
 
 class Logger {
  
-    using NowFile = std::string_view;
+    using NowFile = std::string;
     public:
     static int LogLevel;
     enum  log_level{
@@ -47,9 +47,9 @@ class Logger {
 // #define TIME_NOW "Sat Oct 26 14:33:03 2024"
 #define SYC_LOG_TRACE if(syc::Logger::LogLevel<=syc::Logger::TRACE)\
 syc::Logger(__FILE__,__LINE__,TIME_NOW,syc::Logger::TRACE)._impl._stream    
-#define SYC_LOG_DEBUG if(syc::Logger::logLevel<=syc::Logger::DEBUG)\
+#define SYC_LOG_DEBUG if(syc::Logger::LogLevel<=syc::Logger::DEBUG)\
 syc::Logger(__FILE__,__LINE__,TIME_NOW,syc::Logger::DEBUG)._impl._stream    
-#define SYC_LOG_INFO if(syc::Logger::logLevel<=syc::Logger::INFO)\
+#define SYC_LOG_INFO if(syc::Logger::LogLevel<=syc::Logger::INFO)\
 syc::Logger(__FILE__,__LINE__,TIME_NOW,syc::Logger::INFO)._impl._stream    
 #define SYC_LOG_WARN \
 syc::Logger(__FILE__,__LINE__,TIME_NOW,syc::Logger::WARN)._impl._stream    

@@ -20,7 +20,7 @@ namespace syc
     public:
        
         // 参数是什么意思
-        LogFile(const std::string &basename, off_t rollsize, bool threadsafe = false, time_t flushInterval = 30, int checkEveryN = 1024);
+        LogFile(const std::string &basename, off_t rollsize, bool threadsafe = false, time_t flushInterval = 3, int checkEveryN = 1024);
         void append_unlocked(std::string_view);
         void append(std::string_view);
         void flush();
@@ -34,7 +34,7 @@ namespace syc
         int _checkEveryN;
         int _count;
         time_t _flushInterval;
-        const static time_t _rollInterval = 60; //注意单位全秒
+        const static time_t _rollInterval = 60*60*24; //注意单位全秒
         time_t _last_roll_time;
         time_t _last_flush_time;
         std::unique_ptr<syc::AppendFile> _file;

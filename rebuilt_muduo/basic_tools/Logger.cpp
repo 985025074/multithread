@@ -1,6 +1,7 @@
 #include "Logger.h"
 #include <unistd.h>
 #include <sys/uio.h>
+#include "FormatTools.h"
 namespace syc
 {   
      const char* const map_to_log_level[Logger::NUMBER_OF_LOG_LEVELS] ={
@@ -29,6 +30,9 @@ namespace syc
     }
     Logger::GlobalCallback global_call = &default_callback;
     Logger::GlobalFlush global_flush = &default_flush;
+    void Logger::setGlobalCallback(Logger::GlobalCallback callback){
+        global_call = callback;
+    }
     Logger::~Logger(){
         if(_impl.level == FATAL){
             global_call(std::move(_impl));
@@ -37,6 +41,7 @@ namespace syc
            return; 
 
         }
+
         global_call(std::move(_impl));
     }
     

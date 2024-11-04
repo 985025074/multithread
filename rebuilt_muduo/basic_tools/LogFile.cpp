@@ -16,7 +16,7 @@ namespace syc{
     std::string LogFile::get_log_file_name(time_t*getTime){
         std::string a(details::get_gmt_time(getTime));
         auto _ =split_by(a,' ');
-        return std::format("{}-{}-{}-{}-{}-{}.log",_basename,gettid(),_[5],_[4],_[3],files_count++);
+        return std::format("{}-{}-{}-{}-{}.log",_basename,_[5].substr(0,4),_[4],_[3],files_count++);
     }
     //作用是 新建一个日志文件
     void LogFile::rollfile(time_t*getTime){
@@ -24,11 +24,11 @@ namespace syc{
         std::string new_file_name =  get_log_file_name(getTime);
         
         _file = std::make_unique<AppendFile>(new_file_name.c_str());
-        std::cout << "rollfile" << std::endl;
+        
     }
     //这里需要加锁！ 
     void LogFile::flush(){
-        std::cout << "flush" << std::endl;
+
         if(_threadsafe){
             std::lock_guard<std::mutex> lock(_mtx);
             _file->flush();

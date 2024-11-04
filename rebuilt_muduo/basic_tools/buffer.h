@@ -75,7 +75,7 @@ namespace syc
             }
 
         private:
-            char _data[SIZE];
+            char _data[SIZE] = {0};
             unsigned int _top = 0;                          // top 定义为真实元素 位置往上一格
             constexpr static int allow_max_size_number = 48; // 指示剩余多少允许推入数字
         };
