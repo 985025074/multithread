@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # includes
 include_directories(${PROJECT_SOURCE_DIR}/include)
-
+include_directories(${PROJECT_SOURCE_DIR}/sycserver)
 # refresh src
 aux_source_directory(${PROJECT_SOURCE_DIR}/src TEMP)
 list(APPEND SRC_CPP ${TEMP})
@@ -23,7 +23,7 @@ add_executable(bm ${PROJECT_SOURCE_DIR}/benchmark/benchmark.cpp)
 target_compile_features(hello PUBLIC cxx_std_20)
 target_compile_options(hello PUBLIC -fmodules-ts)
 message(SRC_CPP)
-# target_compile_options(hello PUBLIC -Wall -Wextra -Wpedantic -Werror -g)
+target_compile_options(hello PUBLIC -Wall -Wextra -Wpedantic -Werror -g)
 # target_compile_definitions(hello PUBLIC HEAD=1)
 # target_sources(hello PUBLIC  FILE_SET CXX_MODULES FILES include/mod.ixx )
 # use lib
@@ -44,6 +44,8 @@ target_link_libraries(bm benchmark::benchmark)
 # link libs and dirs
 add_subdirectory(rebuilt_muduo)
 target_link_libraries(hello muduo_lib)
+
+
 
 
 # real muduo

@@ -1,424 +1,149 @@
-// #include "std.h"
-// #include "myPool.h"
-// template <typename T,typename = std::void_t<>>
-// struct has_size{
-//     static constexpr bool value = false;
-// };
-// template <typename T>
-// struct has_size<T,std::void_t<decltype(std::declval<T>().size())>>{
-//     static constexpr bool value = true;
-// };
-// template <typename T,typename =std::enable_if_t<has_size<T>::value>,typename = void>
-// void run_(){
-//     fmt::println("special");
-// }
-// template <typename T,typename = std::enable_if_t<!has_size<T>::value>>
-// void run_(){
-//     fmt::println("default");
-// }
-// struct test__{
-//     std::vector<int>a;
-//     int b;
-// };
-// void func(test__){
-//     fmt::println("test__");
-// }
-// class hierarchical_lock{
-//     public:
-//     thread_local static int this_thread_lock_val;
-//     int current_lock_val;
-//     int previous_lock_val;
-//     std::mutex mtx;
-//     void check_val(){
-//         if(this_thread_lock_val > current_lock_val){
-//             throw std::logic_error("try to lock higer lock");
-//         }
-//     }
-//     hierarchical_lock(int val):current_lock_val(val){
-
-//     }
-//     void lock(){
-//         check_val();
-//         mtx.lock();
-//         previous_lock_val = this_thread_lock_val;
-//         this_thread_lock_val = current_lock_val;
-//     }
-//     void unlock(){
-//         if(current_lock_val != this_thread_lock_val){
-//             throw std::logic_error("higer lock isn't unlocked");
-//         }
-//         this_thread_lock_val = previous_lock_val;
-//         mtx.unlock();
-//     }
-//     bool try_lock(){
-//         check_val();
-//         bool result = mtx.try_lock();
-//         if(result){
-//             previous_lock_val = this_thread_lock_val;
-//             this_thread_lock_val = current_lock_val;
-//             return result;
-//         }
-//         return false;
-//     }
-// };
-// thread_local int hierarchical_lock::this_thread_lock_val = 0;
-// hierarchical_lock highest_lock(1000);
-// hierarchical_lock mid_lock(500);
-// hierarchical_lock low_lock(1);
-// // class thread_queue{
-// //     priavte:
-// //     std::queue
-// // }
-
-// int find_answer(){
-//     std::this_thread::sleep_for(std::chrono::seconds(1));
-//     return 42;
-// }
-// struct X{
-//     int counter = 0;
-//     void inc(){
-//         counter++;
-//     };
-// };
-// template <typename T>
-// void print(const T& t){
-//     std::cout<<"{";
-//     std::string blanker="";
-//     for(const auto& x:t){
-//         std::cout<<std::exchange(blanker,",")<<x;
-//     }
-//     std::cout<<"}"<<std::endl;
-
-// }
-// using std::list;
-
-// // template<typename T>
-// // std::list<T> quicksort(std::list<T>&&lis) {
-// //     if (lis.size() <= 1) {
-// //         return lis;
-// //     }
-// //     std::list<T> left_part;
-// //     T mid_val = lis.front();
-// //     lis.pop_front();
-// //     auto midright = std::partition(lis.begin(), lis.end(), [mid_val](const T& x) { return x < mid_val; });
-// //     left_part.splice(left_part.end(), lis, lis.begin(), midright);
-// //     std::future<list<T>> f = std::async(std::launch::async, quicksort<T>, std::move(left_part));
-
-// //     auto right_part = quicksort(std::move(lis));
-// //     left_part = f.get();
-// //     left_part.insert(left_part.end(), mid_val);
-// //     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
-
-// //     return left_part;
-// // }
-// // #include <random>
-// // std::random_device rd;  // 用于生成种子
-// // std::mt19937 gen(rd()); // Mersenne Twister 随机数引擎
-// // std::uniform_int_distribution<> distrib(1, 10000);
-// // bool test_quicksort_impl(){
-// //     list<int> lis;
-// //     for(int i=0;i<100;i++){
-// //         lis.push_back(distrib(gen));
-// //     }
-// //     auto sorted_lis = quicksort(list<int>(lis));
-// //     std::vector<int> cp_lis (lis.begin(),lis.end());
-// //     std::sort(cp_lis.begin(),cp_lis.end());
-// //     auto cp_lis_iter = cp_lis.begin();
-// //     auto sorted_lis_iter = sorted_lis.begin();
-// //     for(;cp_lis_iter!=cp_lis.end();cp_lis_iter++,sorted_lis_iter++){
-// //         if(*cp_lis_iter!=*sorted_lis_iter){
-// //             return false;
-// //         }
-// //     }
-// //     return true;
-// // }
-// // void test_quicksort(){
-// //     bool result = true;
-// //     for(int i=0;i<100;i++){
-// //         result &= test_quicksort_impl();
-// //     }
-// //     fmt::print("test_quicksort result:{}\n",result);
-// // }
-
-// // template <typename Func,typename ...Args,typename = decltype(std::declval<Func>()(std::forward<Args>(std::declval<Args>())...))>
-// // std::true_type callable (void*);
-// // template <typename Func,typename ...Args>
-// // std::false_type callable (...);
-// // template <typename Func>
-// // auto maker(Func && ruler){
-// //     return [](auto && t){
-// //         return decltype(callable<Func,decltype(get_T(t))>(nullptr))::value;
-// //     };
-// // }
-// // template <typename T>
-// // struct Type{
-// //     using type = T;
-// // };
-// // template <typename T>
-// // auto type = Type<T>();
-// // template <typename T>
-// // T get_T(Type<T>);
-
-// // struct Base{
-// //     Base(){
-// //         Init();
-// //     }
-// //     void Init(){
-// //         f();
-// //     }
-// //     virtual void f(){
-// //         fmt::print("Base::f()\n");
-// //     }
-// // };
-// // struct Son:public Base{
-// //     void f(){
-// //         fmt::print("Son::f()\n");
-// //     }
-// // };
-
-// class ss final{
-//     public:
-//     ss() =default;
-//     ss(const ss&){
-//         fmt::println("copy constructor");
-//     }
-//     ss& operator=(const ss&){
-//         fmt::println("copy constructor by =");
-//     }
-//     ss(ss&&)
-//     {
-//         fmt::println("move constructor");
-//     }
-//     ss& operator=(ss&&)
-//     {
-//         fmt::println("move constructor by =");
-//     }
-// };
-// class checker{
-//     public:
-//     checker(int) {
-//         fmt::println("int constructor");
-//     }
-//     checker() = default;
-//     checker(const checker&){
-//         fmt::println("copy constructor");
-//     }
-//     checker& operator=(const checker&){
-//         fmt::println("copy constructor by =");
-//         return *this;
-//     }
-//     checker(checker&&)
-//     {
-//         fmt::println("move constructor");
-//     }
-//     checker& operator=(checker&&)
-//     {
-//         fmt::println("move constructor by =");
-//         return *this;
-//     }
-//     ~checker(){
-//         puts(__PRETTY_FUNCTION__);
-//     }
-// };
-// class test_func{
-//     public:
-//     checker c;
-//     test_func() = default;
-//     test_func(test_func&& other):c(std::move(other.c)){
-
-//     }
-//     // ~test_func(){
-
-//     // }
-// };
-// template <typename T>
-// auto is_int(T a){
-//     return std::false_type();
-// };
-// auto is_int(int a){
-//     return std::true_type();
-// }
-// template <typename T>
-// void func_impl(T&&,std::true_type){
-//     puts(__PRETTY_FUNCTION__);
-// }
-// void func_impl(int,std::false_type){
-//     puts(__PRETTY_FUNCTION__);
-// }
-// template <typename T>
-// void func(T&&a){
-//     func_impl(std::forward<T>(a),is_int(a));
-// }
-// std::vector<int> v =  {1,2,3,4,5};
-// template <char ...>
-// struct _s_impl;
-// template <char c,char ...T>
-// struct _s_impl<c,T...>{
-//     static  constexpr  auto value = std::array<char,2+sizeof...(T)>{c,T...};
-// };
-
-// template <char ... T>
-// constexpr auto operator "" _s(){
-//     return std::string((const char*)_s_impl<T...>::value.data());
-
-// }
-// using namespace std::literals;
-// std::promise<void>p;
-
-// void task(int i,std::shared_future<void> f){
-//     f.wait();
-//     std::cout << "task"<< i << std::endl;
-// }
-// template <unsigned i,int answer>
-// struct print_answer{
-//     void operator()(){
-
-//     }
-// };
-
-// #include "safe_queue.h"
-// threadsafe_queue<int> q;
-// normal_queue<int> q2;
-// books::threadsafe_queue<int> q3;
-// template <typename container>
-// void create(int num,container& q){
-//     for(int i =0;i<num;i++){
-//         q.push(i);
-//     }
-// }
-// template <typename container>
-// void del(int num,container& q){
-//     for(int i =0;i<num;i++){
-//         q.wait_and_pop();
-//     }
-// }
-// template <typename container>
-// void benchmark(int times,container& p){
-//     int64_t result =0;
-
-//     auto now = syc::Timer();
-//     for(int i =0;i<times;i++){
-//     std::vector<std::thread>pool;
-//     pool.emplace_back(create<container>,20000,std::ref(p));
-//     pool.emplace_back(create<container>,10000,std::ref(p));
-//     pool.emplace_back(create<container>,10000,std::ref(p));
-//     pool.emplace_back(del<container>,40000,std::ref(p));
-
-//     for(auto& t:pool){
-//         t.join();
-//     }
-//         result+= now.stop();
-//     }
-//     result/=times;
-//     std::cout << "benchmark result:" << result << std::endl;
-// }
-// #include "std.h"
-// #include "helper.h"
-// #include "my_parallel_for_each.h"
-// #include "my_parallel_find.h"
-// #include "my_parallel_partial_sum.h"
-// #include "threadpool.h"
-// using namespace std::literals;
-// template<typename T>
-// std::list<T> quicksort_traditional(std::list<T>&&lis) {
-//     if (lis.size() <= 1) {
-//         return lis;
-//     }
-//     std::list<T> left_part;
-//     T mid_val = lis.front();
-//     lis.pop_front();
-//     auto midright = std::partition(lis.begin(), lis.end(), [mid_val](const T& x) { return x < mid_val; });
-//     left_part.splice(left_part.end(), lis, lis.begin(), midright);
-//     std::future<std::list<T>> f = std::async(std::launch::async, quicksort_traditional<T>, std::move(left_part));
-
-//     auto right_part = quicksort_traditional(std::move(lis));
-//     left_part = f.get();
-//     left_part.insert(left_part.end(), mid_val);
-//     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
-
-//     return left_part;
-// }
-// //use our v2 version to make it cooler
-// thread_pool_v4 t1(std::thread::hardware_concurrency());
-// template<typename T>
-// std::list<T> quicksort_threadpool(std::list<T>&&lis) {
-//     if (lis.size() <= 1) {
-//         return lis;
-//     }
-//     std::list<T> left_part;
-//     T mid_val = lis.front();
-//     lis.pop_front();
-//     auto midright = std::partition(lis.begin(), lis.end(), [mid_val](const T& x) { return x < mid_val; });
-//     left_part.splice(left_part.end(), lis, lis.begin(), midright);
-//     auto left_future = t1.add_task([left_part=std::move(left_part)]()mutable{return quicksort_threadpool<T>(std::move(left_part));});
-//     auto right_future= t1.add_task([lis=std::move(lis)]()mutable{return quicksort_threadpool<T>(std::move(lis));});
-//     while(left_future.wait_for(0ms) == std::future_status::timeout || right_future.wait_for(0ms) == std::future_status::timeout){
-//         t1.run_task();
-//     }
-//     left_part = left_future.get();
-//     auto right_part = right_future.get();
-//     left_part.insert(left_part.end(), mid_val);
-//     left_part.insert(left_part.end(), right_part.begin(), right_part.end());
-
-//     return left_part;
-// }
-
-
-#include "basic_tools/LogFile.h"
-#include "basic_tools/Logger.h"
-#include "basic_tools/AsyncLogging.h"
-#include <stdio.h>
-#include <sys/resource.h>
-#include <unistd.h>
-
-
-syc::AsyncLogging* g_asyncLog = nullptr;
-void asyncOutput(syc::Logger::impl && impl)
-{
-  g_asyncLog->append(std::string_view(impl._stream.buffer().data(), impl._stream.length()));
+#include "STD.h"
+#include "HELPER.h"
+#include <netdb.h>
+#define SERVER_IP "127.0.0.1"
+#define SERVER_PORT "80800"
+#define PARSER_SIZE 4096
+#define CHECK(funcname,...) check_impl(#funcname,funcname(__VA_ARGS__));
+#define DEBUG(formats,...) if(debug){\
+  std::cout <<"DEBUG:" <<__LINE__<<"\n";\
+  std::cout << std::format(#formats,__VA_ARGS__)<<"\n";\
 }
-
-void bench(bool longLog)
-{
-  syc::Logger::setGlobalCallback(asyncOutput);
-
-  int cnt = 0;
-  const int kBatch = 1000;
-  std::string empty = " ";
-  std::string longStr(3000, 'X');
-  longStr += " ";
-  syc::Timer start;
-  for (int t = 0; t < 30; ++t)
-  {
-    for (int i = 0; i < kBatch; ++i)
-    {
-      SYC_LOG_INFO << "Hello 0123456789" << " abcdefghijklmnopqrstuvwxyz "
-               << (longLog ? longStr : empty)
-               << cnt;
-      ++cnt;
+int debug = 1;
+int check_impl(std::string_view msg,int ret){
+  if(ret<0){
+    if(msg=="getaddrinfo"){
+      std::cout <<"getaddrinfo:"<<gai_strerror(ret) << "\n";
     }
+    else 
+      perror(msg.data());
   }
-  std::cout << "total time: " << start.stop() << "ms" << std::endl;
+  fflush(stdout);
+  return ret;
+}
+class addrinfo_container{
+  addrinfo * _ptr;
+  public:
+  addrinfo_container():_ptr(nullptr){
+    CHECK(getaddrinfo,SERVER_IP,SERVER_PORT,NULL,&_ptr);
+  }
+  addrinfo_container(addrinfo* ptr):_ptr(ptr){
+
+  }
+  [[nodiscard]]
+  std::optional<addrinfo*> getAddrinfo(){
+    addrinfo* ret{};
+    if(_ptr){
+      ret = _ptr;
+      _ptr = _ptr->ai_next;
+      return ret;
+    }
+    return std::nullopt;
+  }
+  //move constructor
+  addrinfo_container(addrinfo_container&& other):_ptr(std::move(other._ptr)){
+    other._ptr = nullptr;
+  }
+  //move assign operator
+  addrinfo_container& operator=(addrinfo_container&&other){
+    if(_ptr)
+      freeaddrinfo(_ptr);
+    _ptr = std::move(other._ptr);
+    other._ptr=nullptr;
+    return *this;
+  }
+  std::optional<int> createSocketAndBind(){
+    if(_ptr){
+      int soc = socket(_ptr->ai_family,_ptr->ai_socktype,_ptr->ai_protocol);
+      if(soc<0){
+        perror("Create Socket Error");
+        fflush(stdout);
+        return std::nullopt;
+      }
+      CHECK(bind,soc,_ptr->ai_addr,_ptr->ai_addrlen);
+      return soc;
+    }
+    return std::nullopt;
+  }
+  ~addrinfo_container(){
+    if(_ptr)
+      freeaddrinfo(_ptr);
+  }
+};
+struct sockaddr_container{
+  // sockaddr addr;
+  union{
+    sockaddr base;
+    sockaddr_storage big;
+  }addr;
+  unsigned int length;
+};
+std::vector<std::string_view> getLines(std::string_view buffer, std::string_view by = "\r\n") {
+    size_t lastloc = 0;
+    size_t loc;
+    std::vector<std::string_view> result;
+
+    while ((loc = buffer.find(by, lastloc)) != std::string_view::npos) {
+        result.emplace_back(buffer.substr(lastloc, loc - lastloc));
+        lastloc = loc + by.length();
+    }
+
+    result.emplace_back(buffer.substr(lastloc));
+    return result;
 }
 
-int main(int argc, char* argv[])
-{
-
-  {
-    // set max virtual memory to 2GB.
-    size_t kOneGB = 1000*1024*1024;
-    rlimit rl = { 2*kOneGB, 2*kOneGB };
-    setrlimit(RLIMIT_AS, &rl);
+class HTTPparser{
+  std::string_view _buffer;
+  std::string _method;
+  std::string _loc;
+  std::string _version;
+  std::map<std::string,std::string>_data;
+  int _fd;
+  public:
+  HTTPparser(char*_source,int n):_buffer(_source,n){
+    
   }
-  printf("pid = %d\n", getpid());
+  bool parse(){
+    //find head
+    size_t locend = _buffer.find("\r\n\r\n");
+    if(locend == std::string_view::npos){
+      std::cout << "Parse error:head not find!\n"<<std::endl;
+      return false;
+    }
 
-  char name[256] = { '\0' };
-  strncpy(name, argv[0], sizeof name - 1);
-  syc::AsyncLogging log("temp");
-  log.start();
-  g_asyncLog = &log;
+    // size_t first_blank = _buffer.find(" ");
+    // size_t second_blank = _buffer.find(" ",first_blank+1);
+    // size_t first_line_end = _buffer.find("\r\n",second_blank);
+    // DEBUG("firstblank:{},secondblank:{}",first_blank,second_blank);
+    // _method =_buffer.substr(0,first_blank-1);
+    // _loc = _buffer.substr(first_blank+1,second_blank-first_blank-1);
+    // _version = _buffer.substr(second_blank+1,first_line_end-second_blank-1);
+    auto lines = getLines(_buffer);
+    auto combins = split_by(std::string(lines[0]),' ');//TODO:better code
+    _method = combins[0];_loc = combins[1];_version = combins[2];
+    DEBUG("method:{},loc:{},version:{}",_method,_loc,_version);
+    return true;
+  }
 
-  bool longLog = false;
-  bench(longLog);
-  log.stop();
+
+
+};
+std::vector<join_thread> pool;
+int main(){
+  addrinfo_container server;
+  int soc = server.createSocketAndBind().value();
+  CHECK(listen,soc,SOMAXCONN);
+  //主循环
+  while(true){
+    sockaddr_container client;
+    int clientfd = CHECK(accept,soc,&(client.addr.base),&(client.length));
+    pool.emplace_back([clientfd](){
+      char buffer [1024];
+      read(clientfd,buffer,1024);
+      HTTPparser parser(buffer,1024);
+      parser.parse();
+    });
+  }
+
+  return 0;
 }
