@@ -30,6 +30,8 @@
 #include <numeric>
 #include <fstream>
 #include <random>
+#include <cerrno>
+#include <cstring>
 namespace syc{
 struct Timer{
     std::chrono::steady_clock::time_point last_point;
@@ -43,8 +45,23 @@ struct Timer{
         return duration;
     }
 };
-}
+struct ScopeTimer{
+    Timer timer;
+    std::string Name;
+    ScopeTimer(std::string_view name):Name(name){
 
+    }
+    void print(std::string_view msg){
+        std::cout << msg << " " << timer.stop() << "ms\n";
+    }
+    ~ScopeTimer(){
+        std::cout << Name << " " << timer.stop() << "ms\n";
+    }
+};
+    
+}
+#define TIME_TEST(name) syc::ScopeTimer ___(name);
+#define TIME_POINT(name) ___.print(name);
 namespace learn{
     class unmovable{
     public:
@@ -127,6 +144,9 @@ private:
 class notice{
     public:
     notice() =default;
+    explicit notice(int x){
+        puts(__PRETTY_FUNCTION__);
+    }
     notice(const notice&){
         puts(__PRETTY_FUNCTION__);
     }

@@ -2,23 +2,39 @@
 #include "HELPER.h"
 #include <netdb.h>
 #include <unistd.h>
+#include <fcntl.h>
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT "6666"
 #define BUFFER_SIZE 4096
 #define CHECK(funcname, ...) check_impl(#funcname, funcname(__VA_ARGS__));
+#define CHECK_EXPECT(expect, funcname, ...) check_expect_impl(expect, #funcname, funcname(__VA_ARGS__));
 #define DEBUGON
 #define DEBUGON_REQUESTHANDLER
 #ifdef DEBUGON
 #define DEBUG(formats, ...)                                 \
   if (debug)                                                \
   {                                                         \
-    std::cout << "DEBUG:" << __LINE__ << "\n";              \
+    std::cout << "DEBUG:" << __LINE__ << ":";               \
     std::cout << std::format(formats, __VA_ARGS__) << "\n"; \
   }
 int debug = 1;
 #else
 #define DEBUG(formats, ...)
 #endif
+int check_expect_impl(int expect, std::string_view msg, int ret)
+{
+  if (errno != expect && ret < 0)
+  {
+    if (msg == "getaddrinfo")
+    {
+      std::cout << "getaddrinfo:" << gai_strerror(ret) << "\n";
+    }
+    else
+      perror(msg.data());
+  }
+  fflush(stdout);
+  return ret;
+}
 int check_impl(std::string_view msg, int ret)
 {
   if (ret < 0)
@@ -128,26 +144,30 @@ void toLowercase(std::string &src)
     }
   }
 }
-std::string trim(const std::string& str) {
-    size_t start = 0;
-    // 找到第一个非空字符的位置
-    while (start < str.size() && std::isspace(static_cast<unsigned char>(str[start]))) {
-        ++start;
-    }
+std::string trim(const std::string &str)
+{
+  size_t start = 0;
+  // 找到第一个非空字符的位置
+  while (start < str.size() && std::isspace(static_cast<unsigned char>(str[start])))
+  {
+    ++start;
+  }
 
-    // 如果字符串全是空格，直接返回空字符串
-    if (start == str.size()) {
-        return "";
-    }
+  // 如果字符串全是空格，直接返回空字符串
+  if (start == str.size())
+  {
+    return "";
+  }
 
-    size_t end = str.size() - 1;
-    // 找到最后一个非空字符的位置
-    while (end > start && std::isspace(static_cast<unsigned char>(str[end]))) {
-        --end;
-    }
+  size_t end = str.size() - 1;
+  // 找到最后一个非空字符的位置
+  while (end > start && std::isspace(static_cast<unsigned char>(str[end])))
+  {
+    --end;
+  }
 
-    // 截取[start, end]区间的子字符串
-    return str.substr(start, end - start + 1);
+  // 截取[start, end]区间的子字符串
+  return str.substr(start, end - start + 1);
 }
 class HTTPparser
 {
@@ -220,7 +240,7 @@ public:
     return true;
   }
 };
-class HTTPresonser
+class HTTPresponser
 {
 #ifdef DEBUGON_HTTPRESONSER
   int debug = 1;
@@ -234,8 +254,8 @@ class HTTPresonser
   std::string _message;
 
 public:
-  HTTPresonser(std::string_view state, std::string_view version, std::string_view description)
-      : _state(state), _version(version), _description(description)
+  HTTPresponser(std::string_view version, int state, std::string_view description)
+      : _state(std::to_string(state)), _version(version), _description(description)
   {
   }
   // return true if insert successed
@@ -252,14 +272,96 @@ public:
   {
     std::string response;
     response.reserve(1024); // TODO:better size;
-    response.append(std::format("{} {} {}\r\n", _state, _version, _description));
+    response.append(std::format("{} {} {}\r\n", _version, _state, _description));
     for (auto &[k, v] : _data)
     {
       response.append(std::format("{}: {}\r\n", k, v));
     }
-    response.append("\r\n\r\n");
+    response.append("\r\n");
     response.append(_message);
     return response;
+  }
+};
+class EpollPool
+{
+private:
+  int epoll_fd;
+
+public:
+};
+class AsyncFile
+{
+  int _fd = -1;
+
+public:
+  AsyncFile(int fd) : _fd(fd)
+  {
+    int flags = CHECK(fcntl, fd, F_GETFL, 0);
+    CHECK(fcntl, fd, F_SETFL, flags | O_NONBLOCK); // 设置为非阻塞模式
+  }
+  int async_read(char *buffer, int size)
+  {
+    int ret;
+    do
+    {
+      ret = CHECK_EXPECT(EAGAIN, read, _fd, buffer, size);
+    } while (ret == -1);
+
+    return ret;
+  }
+  int sync_read(char *buffer, int size)
+  {
+    int ret;
+    do
+    {
+      ret = CHECK_EXPECT(EAGAIN, read, _fd, buffer, size);
+    } while (ret == -1);
+    return ret;
+  }
+  int async_write(const char *buffer, int size)
+  {
+    int ret;
+    do
+    {
+      ret = CHECK_EXPECT(EAGAIN, write, _fd, buffer, size);
+    } while (ret == -1);
+    return ret;
+  }
+  // 移动函数：
+  void close_file()
+  {
+    if (_fd == -1)
+    {
+      return;
+    }
+    else
+    {
+      close(_fd);
+      _fd = -1;
+    }
+  }
+  AsyncFile(AsyncFile &&other) : _fd(std::move(other._fd))
+  {
+    other._fd = -1;
+  }
+  AsyncFile &operator=(AsyncFile &&other)
+  {
+    if (_fd != -1)
+      close(_fd);
+    _fd = std::move(other._fd);
+    other._fd = -1;
+    return *this;
+  }
+  ~AsyncFile()
+  {
+    if (_fd == -1)
+    {
+      return;
+    }
+    else
+    {
+      close(_fd);
+    }
   }
 };
 template <typename Parser = HTTPparser>
@@ -270,7 +372,7 @@ class HTTPRequestHandler
 #else
   int debug = 0;
 #endif
-  int _fd;
+  AsyncFile _fd;
   std::string _head;
   std::string _data;
   char _buffer[BUFFER_SIZE] = {0};
@@ -278,7 +380,7 @@ class HTTPRequestHandler
   Parser _parser;
 
 public:
-  HTTPRequestHandler(int fd) : _fd(fd)
+  HTTPRequestHandler(int fd) : _fd(AsyncFile(fd))
   {
   }
   void readARequset()
@@ -289,7 +391,7 @@ public:
 
     while (true)
     {
-      int _read_bytes = CHECK(read, _fd, _buffer, sizeof(_buffer));
+      int _read_bytes = _fd.async_read(_buffer, sizeof(_buffer));
       _buffer_length += _read_bytes;
       _head[_buffer_length] = '\0';
       std::string_view _view(_buffer, _buffer_length);
@@ -298,7 +400,8 @@ public:
         size_t head_remain = loc - _head.length() + 4;
         _head.append(std::string_view(_buffer + _head.length(), head_remain));
         //-4 是为了移走\r\n\r\n
-        _data.append(std::string_view(_buffer + loc +4 , _read_bytes-4 - head_remain));
+        if ((size_t)_read_bytes > (4 + head_remain))
+          _data.append(std::string_view(_buffer + loc + 4, _read_bytes - 4 - head_remain));
         break; // head is finished
       }
     }
@@ -316,7 +419,7 @@ public:
       // 检查转换结果
       if (result.ec == std::errc())
       {
-        content_length -= _data.length() +4; // 4 是为了移走\r\n\r\n，\r\n是算作正文的？
+        content_length -= _data.length() + 4; // 4 是为了移走\r\n\r\n，\r\n是算作正文的？
         DEBUG("content-length: {}", content_length);
       }
       else
@@ -332,7 +435,7 @@ public:
     }
     while (content_length)
     {
-      int _read_bytes = CHECK(read, _fd, _buffer, sizeof(_buffer));
+      int _read_bytes = _fd.async_read(_buffer, sizeof(_buffer));
 
       _head[_buffer_length] = '\0';
       std::string_view _view(_buffer + _buffer_length, _read_bytes);
@@ -342,26 +445,14 @@ public:
     }
     DEBUG("data:{}", _data);
   }
+  void writeResponse(std::string response)
+  {
+    _fd.async_write(response.data(), response.length());
+  }
   // move constructor
-  HTTPRequestHandler(HTTPRequestHandler &&other) : _fd(std::move(other._fd))
-  {
-    other._fd = 0;
-  }
+  HTTPRequestHandler(HTTPRequestHandler &&other) = default;
   // move assign operator
-  HTTPRequestHandler &operator=(HTTPRequestHandler &&other)
-  {
-    if (_fd)
-      close(_fd);
-    _fd = std::move(other._fd);
-    other._fd = 0;
-    return *this;
-  }
-
-  ~HTTPRequestHandler()
-  {
-    if (_fd)
-      close(_fd);
-  }
+  HTTPRequestHandler &operator=(HTTPRequestHandler &&other) = default;
 };
 std::vector<join_thread> pool;
 int main()
@@ -377,13 +468,20 @@ int main()
     int clientfd = CHECK(accept, soc, &(client.addr.base), &(client.length));
     pool.emplace_back([clientfd]()
                       {
-                        // char buffer [1024];
-                        // read(clientfd,buffer,1024);
-                        // HTTPparser parser(buffer,1024);
-                        // parser.parse();
                         HTTPRequestHandler handler(clientfd);
                         handler.readARequset();
-                      });
+                        HTTPresponser responser("HTTP/1.1",200, "OK");  
+                        responser.insertHead("Server", "MyServer");
+                        responser.insertHead("Connection", "close");
+                        responser.insertHead("Content-Type", "text/plain");
+                        responser.insertHead("Content-Length", "13");
+
+     
+                        responser.appendData("Hello, world!");
+                        handler.writeResponse(responser.getResponse()); 
+                        LINE;
+                        std::cout << responser.getResponse() << std::endl;
+                                                std::cout << "Finished\n"; });
   }
 
   return 0;
